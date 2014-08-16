@@ -1,0 +1,6 @@
+.*.sw?
+*.pyc
+playground
+__pycache__
+data
+*.csv
