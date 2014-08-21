@@ -5,6 +5,8 @@ from collections import Counter
 from itertools import repeat
 from math import floor
 
+import numpy as np
+
 from filter import *
 
 
@@ -34,7 +36,7 @@ class MFLGraph:
         if play['playtype'] != 'regular':
             h = play['playtype']
         else:
-            h = ''.join((play['down'], play['yrd'], play['togo']))
+            h = ''.join(('z', play['yrd'], play['togo'], play['down']))
         return h
 
     def _add_edge(self, e1_h, e2_h):
@@ -43,32 +45,24 @@ class MFLGraph:
 
     def to_matrix(self):
         hashes = sorted(list(self.hashes))
-        matrix = zeros(len(hashes))
+        n = len(hashes)
+        matrix = np.zeros((n, n))
 
         for from_i, from_ in enumerate(hashes):
             for to in self.edges.get(from_, ''):
                 to_i = hashes.index(to)
-                matrix[from_i][to_i] += 1
+                matrix[from_i, to_i] += 1
         return matrix
-
-def zeros(n):
-    matrix = []
-    for i in range(n):
-        matrix.append(list(repeat(0, n)))
-    return matrix
 
 
 def transition_matrix(matrix):
-    newm = []
+    transition = matrix.copy()
     n = len(matrix)
-    for i, l in enumerate(matrix):
-        s = sum(l)
-        if s == 0:
-            newm.append(list(repeat(0, n)))
-        else:
-            newm.append(list(map(lambda i: i/s, l)))
+    for i in range(n):
+        for j in range(n):
+            transition[i, j] /=  matrix[i].sum()
 
-    return newm
+    return transition
 
 def get_playtype(desc):
     desc = desc.lower()
