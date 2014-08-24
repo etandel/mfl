@@ -72,7 +72,7 @@ def get_playtype(desc):
         return 'td' 
     elif 'field goal' in desc:
         return 'fg'
-    elif 'fumble' in desc or 'intercepted' in desc:
+    elif 'fumble' in desc or 'intercepted' in desc or 'turnover' in desc:
         return 'to'
     elif 'safety' in desc:
         return 'safety'
@@ -84,7 +84,7 @@ def _normalize_togo(togo):
     togo = int(togo)
     if togo > 10:
         return '10'
-    elif 7 <= togo < 10:
+    elif 7 <= togo <= 10:
         return '7'
     elif 5 <= togo < 7:
         return '5'
