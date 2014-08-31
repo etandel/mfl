@@ -67,16 +67,16 @@ def transition_matrix(matrix):
 
 def get_playtype(desc):
     desc = desc.lower()
-    if 'punt' in desc:
+    if 'safety' in desc:
+        return 'safety'
+    elif 'punt' in desc:
         return 'punt'
-    elif 'touchdown' in desc:
-        return 'td' 
     elif 'field goal' in desc:
         return 'fg'
     elif 'fumble' in desc or 'intercepted' in desc or 'turnover' in desc:
         return 'to'
-    elif 'safety' in desc:
-        return 'safety'
+    elif 'touchdown' in desc:
+        return 'td' 
     else:
         return 'regular'
 
