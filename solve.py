@@ -8,8 +8,7 @@ from math import floor
 import numpy as np
 from scipy import linalg
 
-from get_drives import save_matrix
-from filter import *
+from utils import save_matrix
 
 
 def from_file(fname):

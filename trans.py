@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 import codecs
 import csv
 import sys
@@ -7,7 +8,7 @@ from math import floor
 
 import numpy as np
 
-from filter import *
+from utils import project, save_matrix
 
 
 class MFLGraph:
@@ -137,13 +138,6 @@ def PREDICATE(row):
                 desc.replace('\xa0', '') == ''  or
                 '(kick formation) penalty' in desc or
                 not row[7])
-
-
-def save_matrix(header, m, name='out.csv'):
-    with codecs.open(name, 'w', 'iso-8859-1') as f:
-        writer = csv.writer(f)
-        writer.writerow(header)
-        writer.writerows(m)
 
 
 def update_finals(graph):
