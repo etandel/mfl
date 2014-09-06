@@ -104,6 +104,10 @@ get_info = project(4, 6, 7, 8, 11)
 
 
 def get_play(row):
+    """
+    This doesn't set TO on downs, because it would need a lookahead
+    into the next play.
+    """
     atkr, down, togo, yrdline, desc = get_info(row)
     play = {'playtype': get_playtype(desc)}
     try:
@@ -118,6 +122,38 @@ def get_play(row):
         if play['playtype'] == 'regular':
             input(row)
     return play
+
+
+def is_tod(play, next_play):
+    if play.get('down') == '4' and play['playtype'] == 'regular':
+        if next_play is None:
+            return True
+        else:
+            return play.get('atkr') != next_play.get('atkr')
+    return False
+
+
+def set_to_on_downs(plays):
+    """
+    Solve get_playtype() deficiency by returning a new play list where
+    plays which are TO on downs are fixed as a *new* play dict.
+    For all other plays, the *same* dict is returned.
+    """
+    newplays = []
+    for i, play in enumerate(plays):
+        next_i = i + 1
+        if next_i == len(plays):
+            next_play = None
+        else:
+            next_play = plays[next_i]
+
+        if is_tod(play, next_play):
+            newplay = play.copy()
+            newplay['playtype'] = 'to'
+        else:
+            newplay = play
+        newplays.append(newplay)
+    return newplays
 
 
 def drives(plays):
@@ -155,6 +191,7 @@ def main():
         reader = csv.reader(f)
         header = next(reader)
         plays = list(map(TRANSFORM, filter(PREDICATE, reader)))
+        plays = set_to_on_downs(plays)
 
     graph = MFLGraph()
     initial_states = []

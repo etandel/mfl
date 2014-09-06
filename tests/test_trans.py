@@ -2,8 +2,8 @@ import unittest
 
 import numpy as np
 
-from trans import (get_play, get_playtype, MFLGraph,  _normalize_togo,
-                   _normalize_yrd, transition_matrix)
+from trans import (get_play, get_playtype, is_tod, MFLGraph,  _normalize_togo,
+                   _normalize_yrd, set_to_on_downs, transition_matrix)
 
 
 class TestGetPlay(unittest.TestCase):
@@ -113,6 +113,108 @@ class TestNormalizers(unittest.TestCase):
 
         self.assertEqual(_normalize_yrd('0'), '10')
 
+
+class TestSetTOonDowns(unittest.TestCase):
+    def test_is_tod_4th_down_regular_no_next_play(self):
+        p = {'playtype': 'regular',
+             'down': '4',
+             'togo': '5',
+             'yrd': '8',
+             'atkr': 'DAL'}
+        self.assertTrue(is_tod(p, None))
+
+    def test_is_tod_4th_down_abs_no_next_play(self):
+        p = {'playtype': 'td',
+             'down': '4',
+             'togo': '5',
+             'yrd': '8',
+             'atkr': 'DAL'}
+        self.assertFalse(is_tod(p, None))
+
+    def test_is_tod_4th_down_abs_yes_next_play(self):
+        p1 = {'playtype': 'td',
+              'down': '4',
+              'togo': '5',
+              'yrd': '8',
+              'atkr': 'DAL'}
+        p2 = {'playtype': 'regular',
+              'down': '1',
+              'togo': '7',
+              'yrd': '2',
+              'atkr': 'WAS'}
+        self.assertFalse(is_tod(p1, p2))
+
+    def test_is_tod_4th_down_regular_yes_next_play(self):
+        p1 = {'playtype': 'regular',
+              'down': '4',
+              'togo': '5',
+              'yrd': '8',
+              'atkr': 'DAL'}
+        p2 = {'playtype': 'regular',
+              'down': '1',
+              'togo': '7',
+              'yrd': '2',
+              'atkr': 'WAS'}
+        self.assertTrue(is_tod(p1, p2))
+
+    def test_is_tod_4th_down_regular_yes_next_play_same_atkr(self):
+        p1 = {'playtype': 'regular',
+              'down': '4',
+              'togo': '5',
+              'yrd': '8',
+              'atkr': 'DAL'}
+        p2 = {'playtype': 'regular',
+              'down': '1',
+              'togo': '7',
+              'yrd': '9',
+              'atkr': 'DAL'}
+        self.assertFalse(is_tod(p1, p2))
+
+    def test_is_tod_3th_down_regular(self):
+        p1 = {'playtype': 'regular',
+              'down': '3',
+              'togo': '5',
+              'yrd': '8',
+              'atkr': 'DAL'}
+        p2 = {'playtype': 'regular',
+              'down': '1',
+              'togo': '7',
+              'yrd': '9',
+              'atkr': 'DAL'}
+        self.assertFalse(is_tod(p1, p2))
+
+    def test_set_to_on_down(self):
+        atk1 = 'DAL'
+        d = [
+            {'playtype': 'regular',
+             'down': '3',
+             'togo': '5',
+             'yrd': '8',
+             'atkr': 'DAL'},
+
+            {'playtype': 'regular',
+             'down': '4',
+             'togo': '5',
+             'yrd': '8',
+             'atkr': 'DAL'},
+
+            # change of possession
+            {'playtype': 'regular',
+             'down': '1',
+             'togo': '7',
+             'yrd': '2',
+             'atkr': 'WAS'},
+        ]
+        expected = [
+            d[0].copy(),
+            {'playtype': 'to',
+             'down': '4',
+             'togo': '5',
+             'yrd': '8',
+             'atkr': 'DAL'},
+            d[2].copy(),
+        ]
+        self.assertEqual(set_to_on_downs(d), expected)
 
 class TestMatrixStuff(unittest.TestCase):
     def assertMatrixEqual(self, got, expected):
