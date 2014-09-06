@@ -12,7 +12,8 @@ class TestGetPlay(unittest.TestCase):
             20130905_BAL@DEN,1,58,5,DEN,BAL,2,10,77,0,1,(13:05) (No Huddle Shotgun) K.Moreno right guard to DEN 24 for 1 yard (T.Suggs; J.Bynes).,0,-7,1,0,0,2013
         '''.split(',')
         self.assertEqual(get_play(row),
-                         {'down': '2',
+                         {'atkr': 'DEN',
+                          'down': '2',
                           'togo': '7',
                           'yrd': '2',
                           'playtype': 'regular'})
@@ -21,7 +22,12 @@ class TestGetPlay(unittest.TestCase):
         row = '''
             20130905_BAL@DEN,1,52,17,BAL,DEN,1,2,2,0,1,(7:17) J.Flacco pass short right to V.Leach for 2 yards TOUCHDOWN.,0,7,0,0,0,2013
         '''.split(',')
-        self.assertEqual(get_play(row), {'playtype': 'td'})
+        self.assertEqual(get_play(row),
+                        {'atkr': 'BAL',
+                         'down': '1',
+                         'togo': '1',
+                         'yrd': '9',
+                         'playtype': 'td'})
         
 
 class TestGetPlayType(unittest.TestCase):

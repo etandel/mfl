@@ -19,7 +19,6 @@ class MFLGraph:
         if plays is not None:
             self.add_drive(plays)
 
-
     def add_drive(self, plays):
         for from_, to in zip(plays[:-1], plays[1:]):
             self.create_edge(from_, to)
@@ -101,18 +100,22 @@ def _normalize_yrd(yrdline):
     return str(floor((100 - float(yrdline)) / 10))
 
 
-def get_play(row):
-    down, togo, yrdline, desc = project(6, 7, 8, 11)(row)
-    play = {'playtype': get_playtype(desc)}
-    if play['playtype'] == 'regular':
-        try:
-            play.update({
-                'down': down,
-                'togo': _normalize_togo(togo),
-                'yrd': _normalize_yrd(yrdline),
-            })
+get_info = project(4, 6, 7, 8, 11)
 
-        except:
+
+def get_play(row):
+    atkr, down, togo, yrdline, desc = get_info(row)
+    play = {'playtype': get_playtype(desc)}
+    try:
+        play.update({
+            'down': down,
+            'togo': _normalize_togo(togo),
+            'yrd': _normalize_yrd(yrdline),
+            'atkr': atkr,
+        })
+
+    except:
+        if play['playtype'] == 'regular':
             input(row)
     return play
 
