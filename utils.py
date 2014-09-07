@@ -1,7 +1,10 @@
 #!/usr/bin/env python
 import codecs
 import csv
+import os
 import sys
+
+from conf import ENCODING, OUT_DIR
 
 
 def project_dict(*keys):
@@ -19,7 +22,8 @@ def project_tuple(*columns):
 
 
 def save_matrix(header, m, name='out.csv'):
-    with codecs.open(name, 'w', 'iso-8859-1') as f:
+    fname = os.path.join(OUT_DIR, name)
+    with codecs.open(fname, 'w', ENCODING) as f:
         writer = csv.writer(f)
         writer.writerow(header)
         writer.writerows(m)

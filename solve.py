@@ -8,11 +8,12 @@ from math import floor
 import numpy as np
 from scipy import linalg
 
+from conf import ENCODING
 from utils import save_matrix
 
 
 def from_file(fname):
-    with codecs.open(fname, 'r', 'iso-8859-1') as f:
+    with codecs.open(fname, 'r', ENCODING) as f:
         reader = csv.reader(f)
         header = next(reader)
         n = len(header)

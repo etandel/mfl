@@ -3,4 +3,5 @@
 playground
 __pycache__
 data
+out/*
 *.csv

@@ -8,6 +8,7 @@ from math import floor
 
 import numpy as np
 
+from conf import ENCODING
 from utils import project_dict as project, save_matrix
 
 
@@ -185,7 +186,7 @@ def update_finals(graph):
 
 
 def process_file(graph, initial_states, fname):
-    with codecs.open(fname, 'r', 'iso-8859-1') as f:
+    with codecs.open(fname, 'r', ENCODING) as f:
         reader = csv.DictReader(f)
         header = reader.fieldnames
         plays = list(map(TRANSFORM, filter(PREDICATE, reader)))
