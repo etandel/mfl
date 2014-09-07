@@ -184,19 +184,30 @@ def update_finals(graph):
         graph.create_edge(state, state)
 
 
-def main():
-    fname = get_file_name()
+def process_file(graph, initial_states, fname):
     with codecs.open(fname, 'r', 'iso-8859-1') as f:
         reader = csv.DictReader(f)
         header = reader.fieldnames
         plays = list(map(TRANSFORM, filter(PREDICATE, reader)))
-        plays = set_to_on_downs(plays)
-
-    graph = MFLGraph()
-    initial_states = []
+    plays = set_to_on_downs(plays)
     for drive in drives(plays):
         initial_states.append(graph._hash(drive[0]))
         graph.add_drive(drive)
+
+
+def get_file_names():
+    if len(sys.argv) > 1:
+        return sys.argv[1:]
+    else:
+        raise ValueError('Filename not given')
+
+
+def main():
+    graph = MFLGraph()
+    initial_states = []
+
+    for fname in get_file_names():
+        process_file(graph, initial_states, fname)
     update_finals(graph)
 
     initial_states = Counter(initial_states)
@@ -210,13 +221,6 @@ def main():
     save_matrix(header, m, 'cis.csv')
     save_matrix(header, tm, 'trans.csv')
     save_matrix(initial_states_head, [initial_states_prob], 'initial_states.csv')
-
-
-def get_file_name():
-    if len(sys.argv) > 1:
-        return sys.argv[1]
-    else:
-        raise ValueError('Filename not given')
 
 
 if __name__ == '__main__':
