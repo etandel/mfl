@@ -8,7 +8,7 @@ from math import floor
 
 import numpy as np
 
-from utils import project, save_matrix
+from utils import project_dict as project, save_matrix
 
 
 class MFLGraph:
@@ -100,8 +100,7 @@ def _normalize_yrd(yrdline):
     return str(floor((100 - float(yrdline)) / 10))
 
 
-get_info = project(4, 6, 7, 8, 11)
-
+get_info = project('off', 'down', 'togo', 'ydline', 'description')
 
 def get_play(row):
     """
@@ -170,13 +169,13 @@ def drives(plays):
 
 TRANSFORM = get_play
 def PREDICATE(row):
-    desc = row[11].lower()
+    desc = row['description'].lower()
     return not ('kicks' in desc or
                 'extra point' in desc or
                 'two-point' in desc or
                 desc.replace('\xa0', '') == ''  or
                 '(kick formation) penalty' in desc or
-                not row[7])
+                not row['togo'])
 
 
 def update_finals(graph):
@@ -188,8 +187,8 @@ def update_finals(graph):
 def main():
     fname = get_file_name()
     with codecs.open(fname, 'r', 'iso-8859-1') as f:
-        reader = csv.reader(f)
-        header = next(reader)
+        reader = csv.DictReader(f)
+        header = reader.fieldnames
         plays = list(map(TRANSFORM, filter(PREDICATE, reader)))
         plays = set_to_on_downs(plays)
 

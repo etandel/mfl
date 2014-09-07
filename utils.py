@@ -4,7 +4,14 @@ import csv
 import sys
 
 
-def project(*columns):
+def project_dict(*keys):
+    if keys:
+        return lambda d: tuple(d[k] for k in keys)
+    else:
+        raise ValueError('Empty key list.')
+
+
+def project_tuple(*columns):
     if columns:
         return lambda r: tuple(r[c] for c in columns)
     else:

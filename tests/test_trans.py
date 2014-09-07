@@ -4,14 +4,25 @@ import numpy as np
 
 from trans import (get_play, get_playtype, is_tod, MFLGraph,  _normalize_togo,
                    _normalize_yrd, set_to_on_downs, transition_matrix)
+from utils import project_tuple
 
 
 class TestGetPlay(unittest.TestCase):
+    def raw2dict(self, raw):
+        proj = project_tuple(4, 6, 7 ,8, 11)
+        off, down, togo, ydline, desc = proj(raw.split(','))
+        return {
+            'off': off,
+            'down': down,
+            'togo': togo,
+            'ydline': ydline,
+            'description': desc,
+        }
     def test_regular(self):
-        row = '''
+        raw = '''
             20130905_BAL@DEN,1,58,5,DEN,BAL,2,10,77,0,1,(13:05) (No Huddle Shotgun) K.Moreno right guard to DEN 24 for 1 yard (T.Suggs; J.Bynes).,0,-7,1,0,0,2013
-        '''.split(',')
-        self.assertEqual(get_play(row),
+        '''
+        self.assertEqual(get_play(self.raw2dict(raw)),
                          {'atkr': 'DEN',
                           'down': '2',
                           'togo': '7',
@@ -19,10 +30,10 @@ class TestGetPlay(unittest.TestCase):
                           'playtype': 'regular'})
 
     def test_abs(self):
-        row = '''
+        raw = '''
             20130905_BAL@DEN,1,52,17,BAL,DEN,1,2,2,0,1,(7:17) J.Flacco pass short right to V.Leach for 2 yards TOUCHDOWN.,0,7,0,0,0,2013
-        '''.split(',')
-        self.assertEqual(get_play(row),
+        '''
+        self.assertEqual(get_play(self.raw2dict(raw)),
                         {'atkr': 'BAL',
                          'down': '1',
                          'togo': '1',
