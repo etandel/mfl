@@ -61,7 +61,7 @@ def transition_matrix(matrix):
     n = len(matrix)
     for i in range(n):
         for j in range(n):
-            transition[i, j] /=  matrix[i].sum()
+            transition[i, j] /= matrix[i].sum()
 
     return transition
 
@@ -121,54 +121,25 @@ def get_play(row):
     except:
         if play['playtype'] == 'regular':
             input(row)
+    play['_raw'] = row
     return play
 
 
-def is_tod(play, next_play):
-    if play.get('down') == '4' and play['playtype'] == 'regular':
-        if next_play is None:
-            return True
-        else:
-            return play.get('atkr') != next_play.get('atkr')
-    return False
+def is_tod(play):
+    return play.get('down') == '4' and play['playtype'] == 'regular'
 
 
-def set_to_on_downs(plays):
+def set_to_on_downs(drive):
     """
     Solve get_playtype() deficiency by returning a new play list where
     plays which are TO on downs are fixed as a *new* play dict.
     For all other plays, the *same* dict is returned.
     """
-    newplays = []
-    for i, play in enumerate(plays):
-        next_i = i + 1
-        if next_i == len(plays):
-            next_play = None
-        else:
-            next_play = plays[next_i]
-
-        if is_tod(play, next_play):
-            newplay = play.copy()
-            newplay['playtype'] = 'to'
-        else:
-            newplay = play
-        newplays.append(newplay)
-    return newplays
+    last_play = drive[-1]
+    if is_tod(last_play):
+        last_play['playtype'] = 'to'
 
 
-def drives(plays):
-    i = 0
-    while i < len(plays) - 1:
-        drive = []
-        while i < len(plays) - 1 and plays[i]['playtype'] == 'regular':
-            drive.append(plays[i])
-            i += 1
-        drive.append(plays[i])
-        i += 1
-        yield drive
-
-
-TRANSFORM = get_play
 def PREDICATE(row):
     desc = row['description'].lower()
     return not ('kicks' in desc or
@@ -185,15 +156,34 @@ def update_finals(graph):
         graph.create_edge(state, state)
 
 
+def drives(reader):
+    drives = []
+    current_drive = [next(reader)]
+    current_atkr = get_info(current_drive[0])[0]
+    while True:
+        try:
+            row = next(reader)
+        except StopIteration:
+            break
+        else:
+            atkr = get_info(row)[0]
+            if atkr != current_atkr:
+                drives.append(current_drive)
+                current_drive = []
+                current_atkr = atkr
+            current_drive.append(row)
+    return drives
+
+
 def process_file(graph, initial_states, fname):
     with codecs.open(fname, 'r', ENCODING) as f:
         reader = csv.DictReader(f)
         header = reader.fieldnames
-        plays = list(map(TRANSFORM, filter(PREDICATE, reader)))
-    plays = set_to_on_downs(plays)
-    for drive in drives(plays):
-        initial_states.append(graph._hash(drive[0]))
-        graph.add_drive(drive)
+        for drive in drives(reader):
+            drive = list(map(get_play, filter(PREDICATE, drive)))
+            if drive:
+                set_to_on_downs(drive)
+                graph.add_drive(drive)
 
 
 def get_file_names():
